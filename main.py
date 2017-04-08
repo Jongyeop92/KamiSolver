@@ -1,6 +1,12 @@
 # -*- coding: utf8 -*-
 
 
+import copy
+
+
+COLOR_LIST = ['0', '1', '2']
+
+
 class Kami:
 
     def __init__(self, width, height):
@@ -43,6 +49,9 @@ class Kami:
 
                         for dy in [-1, 0, 1]:
                             for dx in [-1, 0, 1]:
+                                if dy * dx != 0:
+                                    continue
+                                
                                 newY, newX = nowY + dy, nowX + dx
 
                                 if self.isInKami(newY, newX) and self.kamiData[newY][newX] == nowColor and (newY, newX) not in sameAreaPositionList:
@@ -75,6 +84,31 @@ class Kami:
             self.kamiData[y][x] = newColor
 
         self.setGroupList()
+
+    def showKami(self):
+        print '\n'.join(''.join(row) for row in self.kamiData)
+
+
+def solveKami(kami, depth, changeInfoList=[]):
+
+    if kami.isEnd():
+        return changeInfoList
+    elif depth == 0:
+        return None
+
+    groupList = kami.getGroupList()
+    for idx in range(len(groupList)):
+        for color in COLOR_LIST:
+            if color == groupList[idx][0]:
+                continue
+            
+            copyKami = copy.deepcopy(kami)
+            copyKami.changeColor(idx, color)
+
+            result = solveKami(copyKami, depth - 1, changeInfoList + [(idx, color)])
+
+            if result != None:
+                return result
 
 
 def test():
@@ -124,14 +158,55 @@ def test():
     assert kami3.isEnd() == True
 
 
+    kami4 = Kami(2, 2)
+    kami4.setKamiData(["00",
+                       "11"])
+
+    assert solveKami(kami4, 1) == [(0, '1')]
+
+
+    kami5 = Kami(2, 2)
+    kami5.setKamiData(["00",
+                       "12"])
+
+    assert solveKami(kami5, 2) == [(0, '1'), (0, '2')]
+
+
     print "Success"
 
 
 def main():
 
-    pass
+    kami = Kami(10, 16)
+
+    kami.setKamiData(["1122200022",
+                      "1122200022",
+                      "1122200022",
+                      "1122200000",
+                      "1222201100",
+                      "1001101100",
+                      "1001101100",
+                      "1001100000",
+                      "1221100000",
+                      "0021101122",
+                      "0021101122",
+                      "0021101122",
+                      "0112202211",
+                      "0112202211",
+                      "0112202211",
+                      "0000002211"])
+
+    result = solveKami(kami, 3)
+
+    for idx, color in result:
+        kami.changeColor(idx, color)
+        kami.showKami()
+        print
+
+    print result
+                     
 
 
 if __name__ == "__main__":
-    test()
-    #main()
+    #test()
+    main()
