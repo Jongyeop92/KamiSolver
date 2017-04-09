@@ -90,7 +90,7 @@ class Kami:
         print '\n'.join(''.join(row) for row in self.kamiData)
 
 
-def solveKami(kami, depth, changeInfoList=[]):
+def solveKami(kami, depth, allSolution=False, changeInfoList=[]):
 
     if kami.isEnd():
         return [changeInfoList]
@@ -120,10 +120,16 @@ def solveKami(kami, depth, changeInfoList=[]):
             copyKami = copy.deepcopy(kami)
             copyKami.changeColor(idx, color)
 
-            result = solveKami(copyKami, depth - 1, changeInfoList + [(idx, color)])
+            result = solveKami(copyKami, depth - 1, allSolution, changeInfoList + [(idx, color, groupList[idx][1][0])])
 
             if result != None:
                 resultList += result
+
+                if not allSolution:
+                    return resultList
+
+    if resultList == []:
+        resultList = None
 
     return resultList
 
@@ -179,14 +185,14 @@ def test():
     kami4.setKamiData(["00",
                        "11"])
 
-    assert [(0, '1')] in solveKami(kami4, 1)
+    assert [(0, '1', (0, 0))] in solveKami(kami4, 1)
 
 
     kami5 = Kami(2, 2)
     kami5.setKamiData(["00",
                        "12"])
 
-    assert [(0, '1'), (0, '2')] in solveKami(kami5, 2)
+    assert [(0, '1', (0, 0)), (0, '2', (0, 0))] in solveKami(kami5, 2)
 
 
     print "Success"
