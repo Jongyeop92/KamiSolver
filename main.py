@@ -2,6 +2,7 @@
 
 
 import copy
+import time
 
 
 COLOR_LIST = ['0', '1', '2']
@@ -92,11 +93,25 @@ class Kami:
 def solveKami(kami, depth, changeInfoList=[]):
 
     if kami.isEnd():
-        return changeInfoList
+        return [changeInfoList]
     elif depth == 0:
         return None
 
+    resultList = []
     groupList = kami.getGroupList()
+
+    if depth == 1:
+        colorCount = 0
+        colorList  = []
+
+        for i in range(len(groupList)):
+            if groupList[i][0] not in colorList:
+                colorList.append(groupList[i][0])
+                colorCount += 1
+
+        if colorCount > 2:
+            return None
+        
     for idx in range(len(groupList)):
         for color in COLOR_LIST:
             if color == groupList[idx][0]:
@@ -108,7 +123,9 @@ def solveKami(kami, depth, changeInfoList=[]):
             result = solveKami(copyKami, depth - 1, changeInfoList + [(idx, color)])
 
             if result != None:
-                return result
+                resultList += result
+
+    return resultList
 
 
 def test():
@@ -162,14 +179,14 @@ def test():
     kami4.setKamiData(["00",
                        "11"])
 
-    assert solveKami(kami4, 1) == [(0, '1')]
+    assert [(0, '1')] in solveKami(kami4, 1)
 
 
     kami5 = Kami(2, 2)
     kami5.setKamiData(["00",
                        "12"])
 
-    assert solveKami(kami5, 2) == [(0, '1'), (0, '2')]
+    assert [(0, '1'), (0, '2')] in solveKami(kami5, 2)
 
 
     print "Success"
@@ -179,31 +196,52 @@ def main():
 
     kami = Kami(10, 16)
 
-    kami.setKamiData(["1122200022",
-                      "1122200022",
-                      "1122200022",
-                      "1122200000",
-                      "1222201100",
-                      "1001101100",
-                      "1001101100",
-                      "1001100000",
-                      "1221100000",
-                      "0021101122",
-                      "0021101122",
-                      "0021101122",
-                      "0112202211",
-                      "0112202211",
-                      "0112202211",
-                      "0000002211"])
+##    depth = 3
+##    kami.setKamiData(["1122200022",
+##                      "1122200022",
+##                      "1122200022",
+##                      "1122200000",
+##                      "1222201100",
+##                      "1001101100",
+##                      "1001101100",
+##                      "1001100000",
+##                      "1221100000",
+##                      "0021101122",
+##                      "0021101122",
+##                      "0021101122",
+##                      "0112202211",
+##                      "0112202211",
+##                      "0112202211",
+##                      "0000002211"])
 
-    result = solveKami(kami, 3)
+    depth = 4
+    kami.setKamiData(["0000000000",
+                      "0220222220",
+                      "0220200020",
+                      "0000201020",
+                      "0000200020",
+                      "0000222220",
+                      "0000000000",
+                      "0000000000",
+                      "0111111110",
+                      "0100000010",
+                      "0101111010",
+                      "0101221010",
+                      "0101111010",
+                      "0100000010",
+                      "0111111110",
+                      "0000000000"])
 
-    for idx, color in result:
-        kami.changeColor(idx, color)
-        kami.showKami()
-        print
+    startTime = time.time()
 
-    print result
+    resultList = solveKami(kami, depth)
+
+    timeGap = time.time() - startTime
+
+    for result in resultList:
+        print result
+
+    print timeGap
                      
 
 
